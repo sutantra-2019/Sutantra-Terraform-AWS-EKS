@@ -3,9 +3,14 @@ data "aws_security_group" "cluster" {
   name   = module.cluster-sg.this_security_group_name
 }
 
-data "aws_subnet_ids" "private" {
+data "aws_security_group" "node" {
+  vpc_id = var.aws_vpc_id
+  name   = module.node-sg.this_security_group_name
+}
+
+data "aws_subnet_ids" "public_subnet_ids" {
   vpc_id = var.aws_vpc_id
   tags = {
-    Name = "Sutantra-Private"
+    Type = "Private"
   }
 }

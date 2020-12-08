@@ -1,8 +1,14 @@
+locals {
+  #node_sec_group = [var.source_security_group_ids, data.aws_security_group.node.id]
+  node_sec_group = [data.aws_security_group.node.id]
+}
+
+
 resource "aws_eks_node_group" "eks-node-group" {
   cluster_name    = var.aws_k8s_cluster
-  node_group_name = "${var.aws_k8s_cluster}-default-node-group"
+  node_group_name = "${var.aws_k8s_cluster}-node-group"
   node_role_arn   = aws_iam_role.node.arn
-  subnet_ids      = var.aws_subnet_ids
+  subnet_ids      = data.aws_subnet_ids.public_subnet_ids.ids
 
   release_version      = var.ami_release_version
   version              = var.kubernetes_version
@@ -17,23 +23,13 @@ resource "aws_eks_node_group" "eks-node-group" {
     min_size     = var.min-size
   }
 
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = [scaling_config.0.desired_size]
-  }
-
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
   depends_on = [
     aws_eks_cluster.eks,
     aws_iam_role_policy_attachment.node-AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.node-AmazonEKS_CNI_Policy
+    aws_iam_role_policy_attachment.node-AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.node-AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.node-AmazonSSMPolicy
   ]
-
-  tags = merge(
-    {
-      "Name" = "${var.aws_k8s_cluster}-Node-Group"
-    },
-    var.tags
-  )
 }

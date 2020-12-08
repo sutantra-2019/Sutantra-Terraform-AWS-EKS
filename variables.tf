@@ -23,16 +23,16 @@ variable "tf_state_lock_database" {
 # EKS Cluser Variables
 #----------------------------------------------------------------------------------
 
+variable "aws_k8s_cluster" {
+  description = "Name of the K8s Cluster."
+  type        = string
+  default     = "PACT-K8s"
+}
+
 variable "cluster_encryption_enabled" {
   type        = bool
   default     = true
   description = "Set to `true` to enable Cluster Encryption Configuration"
-}
-
-variable "aws_k8s_cluster" {
-  description = "Name of the K8s Cluster."
-  type        = string
-  default     = "PACT-Production"
 }
 
 variable "aws_k8s-version" {
@@ -61,7 +61,7 @@ variable "cluster_encryption_config_enabled" {
 
 variable "endpoint_private_access" {
   type        = bool
-  default     = false
+  default     = true
   description = "Indicates whether or not the Amazon EKS private API server endpoint is enabled. Default to AWS EKS resource and it is false"
 }
 
@@ -81,7 +81,7 @@ variable "public_access_cidrs" {
 # EKS Worker Nodes Variables
 #----------------------------------------------------------------------------------
 variable "desired-capacity" {
-  default     = 2
+  default     = 1
   type        = string
   description = "Autoscaling Desired node capacity"
 }
@@ -98,16 +98,29 @@ variable "min-size" {
   description = "Autoscaling Minimum node capacity"
 }
 
-variable "aws_subnet_ids" {
-  default     = ["subnet-0484a27ae384aa93b", "subnet-098eac4db3b837ed9"]
-  type        = list
-  description = "Subnet ID's that EKS Woker nodes get launched"
+variable "aws_subnet_name" {
+  #default = "Private subnet - Sandbox"
+  default     = "Sutantra-Subnet-Pub"
+  type        = string
+  description = "Subnet name"
 }
 
 variable "aws-node-instance-type" {
   default     = "t2.micro"
   type        = string
   description = "EKS Worker Node Instance Type"
+}
+
+variable "ec2_ssh_key" {
+  type        = string
+  description = "SSH key name that should be used to access the worker nodes"
+  default     = "achaudhari-pact-ec2-key"
+}
+
+variable "source_security_group_ids" {
+  type        = string
+  description = "Worker node security group ID's"
+  default     = "all-internal-sg"
 }
 
 variable "ami_release_version" {
@@ -140,7 +153,8 @@ variable "ami_type" {
 variable "aws_vpc_id" {
   description = "VPC ID for EKS Cluster To Be Created"
   type        = string
-  default     = "vpc-0349aabe36e335709"
+  #default     = "vpc-08ff0ba905abb5b4a"
+  default = "vpc-0ee0ee869b8c23500"
 }
 
 #----------------------------------------------------------------------------------
@@ -166,15 +180,6 @@ variable "kms_enabled" {
   type        = bool
   default     = true
   description = "key is enabled"
-}
-
-#----------------------------------------------------------------------------------
-# EC2 Public Key Variables
-#----------------------------------------------------------------------------------
-variable "ec2-key-public-key" {
-  default     = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD3F6tyPEFEzV0LX3X8BsXdMsQz1x2cEikKDEY0aIj41qgxMCP/iteneqXSIFZBp5vizPvaoIR3Um9xK7PGoW8giupGn+EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
-  type        = string
-  description = "AWS EC2 public key data"
 }
 
 #----------------------------------------------------------------------------------
